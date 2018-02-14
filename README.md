@@ -7,13 +7,13 @@ Scripts are like Photoshop actions, but a little more robust. For documentation 
 ### Installation
 #### Windows
 1. Copy script file to %appdata%\Adobe\Adobe Photoshop [version]\Presets\Scripts
-..* _You may need to create this folder_
+   * _You may need to create this folder_
 2. Restart Photoshop
 3. From the application menu, select: File > Scripts > [script]
 
 #### Mac
 1. Copy script file to ~/Library/Application Support/Adobe/Adobe Photoshop [version]/Presets/Scripts
-..* _You may need to create this folder_
+   * _You may need to create this folder_
 2. Restart Photoshop
 3. From the application menu, select: File > Scripts > [script]
 
