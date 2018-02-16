@@ -7,7 +7,7 @@
  * @author: Roger Soucy <roger.soucy@elusive-concepts.com>
  * @website: http://elusive-concepts.com/
  * @copyright Elusive Concepts, LLC 2018
- * @license https://opensource.org/licenses/MIT
+ * @license https://opensource.org/licenses/Apache-2.0
  *
  * @requires: Adobe Photoshop CC 2015 or higher
  *
@@ -43,9 +43,10 @@ app.bringToFront();
 
 	/** @type {Object} tiling settings */
 	var settings = {
-		rows : 5,
-		cols : 5,
-		gap  : false
+		rows      : 5,
+		cols      : 5,
+		gap       : false,
+		highlight : true
 	};
 
 
@@ -53,16 +54,16 @@ app.bringToFront();
 	var target = "IMAGE";
 
 	/** @type {String} save the current ruler units */
-	var units = app.preferences.rulerUnits;
+	var units = null;
 
 	/** @type {Object} active document */
-	var doc = activeDocument;
+	var doc = null;
 
 	/** @type {Object} active layer */
-	var layer = doc.activeLayer;
+	var layer = null;
 
 	/** @type {Object} active selection (read only) */
-	var selection = doc.selection;
+	var selection = null;
 
 	/** @type {Object} vector2 of the tile size */
 	var tile_size = {x:0, y:0};
@@ -91,6 +92,13 @@ app.bringToFront();
 		}
 
 
+		// set local variables
+		doc       = activeDocument;
+		layer     = doc.activeLayer;
+		selection = doc.selection;
+		units     = app.preferences.rulerUnits;
+
+
 		// confirm image is not empty
 		if(doc.artLayers <=1 && layer.bounds[0] == layer.bounds[2])
 		{
@@ -100,6 +108,15 @@ app.bringToFront();
 			_notify(msg, "No Artwork");
 			return;
 		}
+
+
+		// Add an active check to the selection Object
+		Selection.prototype.active = function()
+		{
+			try      { return (selection.bounds) ? true : false; }
+			catch(e) { return false; }
+		}
+
 
 		// Set the active target
 		if(selection.active())
@@ -163,7 +180,7 @@ app.bringToFront();
 		}
 
 		// try to hilight one tile
-		if(!_highlight_tile())
+		if(settings.highlight && !_highlight_tile())
 		{
 			var msg  = "Unable to highlight the last tile.\n";
 			_notify(msg, "Unable to hilight");
@@ -234,6 +251,12 @@ app.bringToFront();
 					break;
 			}
 
+			if(settings.gap)
+			{
+				tile_size.x += settings.gap;
+				tile_size.y += settings.gap;
+			}
+
 			return true;
 		}
 		catch(e)
@@ -257,8 +280,8 @@ app.bringToFront();
 
 			if(settings.gap)
 			{
-				doc_x += settings.gap * (settings.cols - 1);
-				doc_y += settings.gap * (settings.rows - 1);
+				doc_x -= settings.gap;
+				doc_y -= settings.gap;
 			}
 
 			preview_doc = app.documents.add(doc_x, doc_y, doc.resolution, "Tile Preview");
@@ -428,21 +451,10 @@ app.bringToFront();
 	var _end = function()
 	{
 		// restore original settings
-		preferences.rulerUnits = units;
+		if(units) { preferences.rulerUnits = units; }
 
 		// re-focus original image
-		app.activeDocument = doc;
-	}
-
-	/**
-	 * Add an active check to the selection Object
-	 *
-	 * @return {boolean} if selection is active
-	 */
-	Selection.prototype.active = function()
-	{
-		try      { return (selection.bounds) ? true : false; }
-		catch(e) { return false; }
+		if(doc) { app.activeDocument = doc; }
 	}
 
 
